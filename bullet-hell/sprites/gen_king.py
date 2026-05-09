@@ -464,9 +464,9 @@ def draw_scepter_orb():
 def render_front():
     draw_cape_front()
     draw_collar_front()
-    draw_pauldron(15, 36, 8, 6)
-    draw_pauldron(48, 36, 8, 6)
-    mini_skull(15, 37); mini_skull(48, 37)
+    draw_pauldron(22, 33, 5, 4)
+    draw_pauldron(41, 33, 5, 4)
+    mini_skull(22, 34); mini_skull(41, 34)
     draw_arm_front(-1); draw_arm_front(+1)
     draw_robe_front()
     draw_scepter_diagonal_front()
@@ -539,16 +539,11 @@ def draw_arm_back(side):
 def render_back():
     draw_cape_front()
     draw_collar_front()
-    draw_pauldron(15, 36, 8, 6)
-    draw_pauldron(48, 36, 8, 6)
-    # No mini-skulls on back of pauldrons — those are on the front face.
-    # Add a small gold rivet/stud cluster instead to suggest pauldron back.
-    for (px_, py_) in [(15, 36), (48, 36)]:
-        s(px_, py_, G1); s(px_ - 2, py_ - 1, G3); s(px_ + 2, py_ - 1, G3)
-        s(px_, py_ - 2, G3); s(px_, py_ + 2, G1)
-    # Arms hanging behind/at the sides
-    draw_arm_back(-1)
-    draw_arm_back(+1)
+    draw_pauldron(22, 33, 5, 4)
+    draw_pauldron(41, 33, 5, 4)
+    # No mini-skulls on back of pauldrons — small gold rivet instead.
+    for (px_, py_) in [(22, 33), (41, 33)]:
+        s(px_, py_, G3); s(px_, py_ - 1, G1); s(px_, py_ + 1, G1)
     # Robe back — same shape, no gold seam
     top_y, bot_y = 36, 61
     for y in range(top_y, bot_y + 1):
