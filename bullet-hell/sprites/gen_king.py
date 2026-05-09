@@ -17,36 +17,39 @@ from PIL import Image
 
 W = H = 64
 
-# ---------- Palette ----------
-T  = (0, 0, 0, 0)          # transparent
-OL = (10, 5, 16, 255)      # outline (near black, purple-tint)
-SH = (28, 16, 42, 255)     # generic shadow
+# ---------- Palette (high-contrast for bullet-hell readability) ----------
+T   = (0, 0, 0, 0)          # transparent
+OL  = (6, 2, 12, 255)       # outline (near pure black w/ violet tint)
+SH  = (28, 16, 42, 255)     # generic shadow
+WHT = (255, 255, 255, 255)  # pure white sparkle
 
-# Bone
-B1 = (88, 78, 62, 255)
-B2 = (172, 162, 132, 255)
-B3 = (236, 228, 204, 255)
+# Bone (cool tint)
+B1 = (74, 66, 80, 255)
+B2 = (180, 170, 168, 255)
+B3 = (250, 246, 230, 255)
 
 # Royal purple
-P1 = (38, 14, 58, 255)
-P2 = (76, 30, 116, 255)
-P3 = (132, 72, 188, 255)
-P4 = (184, 124, 228, 255)
+P1 = (32, 8, 56, 255)
+P2 = (78, 28, 124, 255)
+P3 = (140, 76, 200, 255)
+P4 = (196, 138, 240, 255)
+P5 = (228, 192, 255, 255)   # rim light
 
 # Gold
-G1 = (108, 76, 18, 255)
-G2 = (194, 152, 42, 255)
-G3 = (248, 218, 102, 255)
+G1 = (108, 70, 12, 255)
+G2 = (210, 160, 36, 255)
+G3 = (255, 232, 120, 255)
 
 # Red gem
-R1 = (90, 10, 24, 255)
-R2 = (208, 36, 52, 255)
-R3 = (252, 108, 116, 255)
+R1 = (88, 6, 22, 255)
+R2 = (220, 36, 52, 255)
+R3 = (255, 130, 140, 255)
 
-# Cyan glow
-C1 = (10, 80, 130, 255)
-C2 = (44, 204, 248, 255)
-C3 = (208, 252, 255, 255)
+# Cyan glow (eye sockets / scepter orb)
+C0 = (4, 30, 70, 255)        # deep glow shadow
+C1 = (10, 90, 180, 255)
+C2 = (60, 220, 255, 255)
+C3 = (220, 252, 255, 255)
 
 img = Image.new('RGBA', (W, H), T)
 px = img.load()
@@ -322,45 +325,21 @@ draw_robe_front()
 # Held between hands at row ~50-51
 # ============================================================
 def draw_scepter():
-    # Staff goes from above hands up to ~row 18 (just below crown)
-    for y in range(20, 51):
-        # Don't overwrite head
-        if px[31, y][3] != 0 and px[31, y] not in (P1, P2, P3, P4):
-            # head/cape pixels — only overwrite if cape
-            if px[31, y] in (B1, B2, B3, OL):
-                continue
+    # Short staff from hand level up to chest, orb in front of chest.
+    # Staff: rows 38-50, cols 30-33
+    for y in range(38, 51):
         s(30, y, OL)
-        s(31, y, G1)
-        s(32, y, G2)
+        s(31, y, G2)
+        s(32, y, G1)
         s(33, y, OL)
-
-    # Decorative bands on staff
-    for y_b in [25, 35, 45]:
+    # Bands
+    for y_b in [42, 47]:
         s(30, y_b, OL); s(31, y_b, G3); s(32, y_b, G3); s(33, y_b, OL)
-
-    # Orb at top, centered around (31.5, 16)
-    for y in range(11, 21):
-        for x in range(26, 38):
-            dx = x - 31.5
-            dy = y - 15.5
-            d2 = dx * dx + dy * dy
-            if d2 <= 16:
-                # Highlight upper-left
-                if dx < -0.5 and dy < -0.5 and d2 < 6:
-                    s(x, y, C3)
-                elif d2 < 6:
-                    s(x, y, C2)
-                elif d2 < 12:
-                    s(x, y, C2)
-                else:
-                    s(x, y, C1)
-            elif d2 <= 22:
-                s(x, y, OL)
-    # bright sparkle
-    s(29, 13, C3)
-    s(28, 14, C3)
+    # Orb sits at chest level, centered (31.5, 39) — readable, won't be hidden
+    # (drawn LAST in main flow so head/crown can't cover it)
 
 
+# (orb drawn separately at end of file for proper layering)
 draw_scepter()
 
 
@@ -385,22 +364,28 @@ def draw_skull():
             elif d <= 1.18:
                 s(x, y, OL)
 
-    # Eye sockets — dark hollow with cyan glow
+    # Eye sockets — large dark hollow with bright cyan core + halo
     def eye(cx, cy):
-        for y in range(cy - 2, cy + 3):
+        # Dark socket
+        for y in range(cy - 3, cy + 4):
             for x in range(cx - 3, cx + 4):
-                dx = (x - cx) / 3
-                dy = (y - cy) / 2.2
+                dx = (x - cx) / 3.0
+                dy = (y - cy) / 2.6
                 if dx * dx + dy * dy <= 1.0:
                     s(x, y, OL)
-        # Cyan inner glow
-        s(cx, cy, C3)
-        s(cx - 1, cy, C2); s(cx + 1, cy, C2)
-        s(cx, cy - 1, C2); s(cx, cy + 1, C1)
-        s(cx - 1, cy + 1, C1); s(cx + 1, cy + 1, C1)
+        # Cyan inner glow — chunky 3x2 bright core
+        s(cx - 1, cy - 1, C2); s(cx, cy - 1, C3); s(cx + 1, cy - 1, C2)
+        s(cx - 1, cy,     C2); s(cx, cy,     C3); s(cx + 1, cy,     C2)
+        s(cx - 1, cy + 1, C1); s(cx, cy + 1, C2); s(cx + 1, cy + 1, C1)
+        # Pinprick white centers — readability pop
+        s(cx, cy - 1, WHT)
 
     eye(27, 22)
     eye(37, 22)
+    # Cyan halo bleeds onto bone above eye — sells the glow
+    for cx in (27, 37):
+        s(cx, 18, C1); s(cx - 1, 18, C0); s(cx + 1, 18, C0)
+        s(cx, 19, C2); s(cx - 1, 19, C1); s(cx + 1, 19, C1)
 
     # Brow ridge shadow above eyes
     hl(24, 30, 19, B1)
@@ -485,36 +470,115 @@ def draw_crown():
     spire(15, 19, 8, 11)
     spire(44, 48, 8, 11)
 
-    # Big red gem in center spire
-    # Diamond shape centered at (31.5, 6)
+    # Big red gem in center spire — bright with white sparkle
     gem = [
         "  ##  ",
         " #rr# ",
         "#rRRr#",
+        "#R*Rr#",
         "#rRRr#",
         " #rr# ",
         "  ##  ",
     ]
+    # Render with the longest row as the layout reference
     for j, row in enumerate(gem):
         for i, ch in enumerate(row):
             x = 29 + i
-            y = 3 + j
+            y = 2 + j
             if ch == '#':
                 s(x, y, OL)
             elif ch == 'r':
                 s(x, y, R2)
             elif ch == 'R':
                 s(x, y, R3)
+            elif ch == '*':
+                s(x, y, WHT)
+    # Outer halo — dark red bleed for glow
+    s(28, 5, R1); s(35, 5, R1)
+    s(31, 1, R2); s(32, 1, R2)
+    s(31, 9, R1); s(32, 9, R1)
 
 
 draw_crown()
 
 
 # ============================================================
-# Final pass — drop a few floating ember sparkles around boss
+# Post-processing — readability passes
 # ============================================================
+def reinforce_silhouette():
+    """Ensure every transparent pixel adjacent (8-neighbor) to a
+    non-outline colored pixel becomes outline. Gives a clean,
+    consistent dark border around the whole boss."""
+    edges = []
+    for y in range(H):
+        for x in range(W):
+            if px[x, y][3] != 0:
+                continue
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    if dx == 0 and dy == 0:
+                        continue
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < W and 0 <= ny < H:
+                        c = px[nx, ny]
+                        if c[3] != 0 and c != OL:
+                            edges.append((x, y))
+                            break
+                else:
+                    continue
+                break
+    for x, y in edges:
+        s(x, y, OL)
+
+
+def add_rim_highlights():
+    """Lighten upper-facing edges of major color zones for top-down readability."""
+    # Snapshot since we'll be writing
+    src = [[px[x, y] for y in range(H)] for x in range(W)]
+    rim_map = {
+        P1: P3, P2: P4, P3: P5, P4: P5,
+        G1: G3, G2: G3,
+        B1: B3, B2: B3,
+    }
+    for y in range(1, H):
+        for x in range(W):
+            c = src[x][y]
+            if c not in rim_map:
+                continue
+            above = src[x][y - 1]
+            # Top edge if pixel above is transparent or outline
+            if above[3] == 0 or above == OL:
+                s(x, y, rim_map[c])
+
+
+def draw_scepter_orb():
+    """Big glowing cyan orb centered on chest (in front of body)."""
+    cx, cy = 31, 39
+    for y in range(cy - 5, cy + 6):
+        for x in range(cx - 5, cx + 6):
+            dx = x - cx + 0.5
+            dy = y - cy + 0.5
+            d2 = dx * dx + dy * dy
+            if d2 <= 16:
+                if d2 <= 2:
+                    s(x, y, WHT)
+                elif d2 <= 6:
+                    s(x, y, C3)
+                elif d2 <= 12:
+                    s(x, y, C2)
+                else:
+                    s(x, y, C1)
+            elif d2 <= 22:
+                s(x, y, OL)
+    # Outer halo of darker cyan (extends the silhouette glow)
+    for (hx, hy) in [(cx - 5, cy), (cx + 5, cy), (cx, cy - 5), (cx, cy + 5),
+                      (cx - 4, cy - 3), (cx + 4, cy - 3),
+                      (cx - 4, cy + 3), (cx + 4, cy + 3)]:
+        if px[hx, hy] == OL:
+            s(hx, hy, C0)
+
+
 def sparkles():
-    # Tiny embers at edges to give "evil aura"
     pts = [(6, 18), (58, 16), (4, 40), (60, 44), (10, 8), (54, 6)]
     for (x, y) in pts:
         s(x, y, R3)
@@ -522,6 +586,9 @@ def sparkles():
         s(x, y + 1, R2)
 
 
+reinforce_silhouette()
+add_rim_highlights()
+draw_scepter_orb()
 sparkles()
 
 
