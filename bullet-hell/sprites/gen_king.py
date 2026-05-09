@@ -838,6 +838,21 @@ def render_cell(direction, frame):
         render_right()
         img = img.transpose(Image.FLIP_LEFT_RIGHT)
 
+    # Per-direction framing offsets:
+    #   top rows (front/back) sit a bit higher in the cell
+    #   side rows (right/left) sit a bit further back from the facing edge
+    framing = {
+        'front': (0, -1),
+        'back':  (0, -1),
+        'right': (-2, 0),
+        'left':  (2, 0),
+    }
+    fx, fy = framing[direction]
+    if (fx, fy) != (0, 0):
+        shifted = Image.new('RGBA', (W, H), T)
+        shifted.paste(img, (fx, fy), img)
+        img = shifted
+
     # Walk-cycle offsets — float bob + sway
     if frame == 0:
         bobbed = Image.new('RGBA', (W, H), T)
