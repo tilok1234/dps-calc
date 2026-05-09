@@ -484,13 +484,39 @@ def draw_skull_back():
     hl(26, 37, 32, B1)
 
 
+def draw_arm_back(side):
+    """Bone arms hanging straight down at the king's sides, visible from behind."""
+    if side == -1:
+        x = 17  # left side, just inside the pauldron
+    else:
+        x = 46
+    # Upper + forearm in one straight column (slight outward angle on forearm)
+    for y in range(41, 52):
+        s(x - 1, y, OL); s(x, y, B2); s(x + 1, y, B3); s(x + 2, y, B2); s(x + 3, y, OL)
+    # Elbow joint highlight
+    s(x, 46, B1); s(x + 1, 46, B2); s(x + 2, 46, B1)
+    # Hand at the bottom — small bone fist
+    hx = x + (-1 if side == -1 else 1)
+    for y in range(51, 55):
+        for cx in range(hx, hx + 4):
+            d = abs(cx - (hx + 1)) + abs(y - 53)
+            if d <= 2:
+                s(cx, y, B2 if (cx + y) % 2 else B3)
+    # Hand outline
+    s(hx - 1, 52, OL); s(hx - 1, 53, OL)
+    s(hx + 4, 52, OL); s(hx + 4, 53, OL)
+    s(hx + 1, 55, OL); s(hx + 2, 55, OL)
+
+
 def render_back():
     draw_cape_front()
     draw_collar_front()
     draw_pauldron(15, 36, 8, 6)
     draw_pauldron(48, 36, 8, 6)
-    # Mini-skulls face outward on back too
     mini_skull(15, 37); mini_skull(48, 37)
+    # Arms hanging behind/at the sides
+    draw_arm_back(-1)
+    draw_arm_back(+1)
     # Robe back — same shape, no gold seam
     top_y, bot_y = 36, 61
     for y in range(top_y, bot_y + 1):
@@ -498,12 +524,17 @@ def render_back():
         half = int(7 + t * 7)
         L = 32 - half; R = 31 + half
         for x in range(L, R + 1):
+            # Don't overwrite arms
+            if px[x, y][3] != 0 and px[x, y] in (B2, B3, OL):
+                continue
             d = abs(x - 31.5) / max(half, 1)
             if d > 0.88: s(x, y, P1)
             elif d > 0.5: s(x, y, P2)
             else: s(x, y, P3)
-        s(L - 1, y, OL); s(R + 1, y, OL)
-    # Gold band hem (still visible from behind)
+        if px[L - 1, y][3] == 0 or px[L - 1, y] in (P1, P2, P3):
+            s(L - 1, y, OL)
+        if px[R + 1, y][3] == 0 or px[R + 1, y] in (P1, P2, P3):
+            s(R + 1, y, OL)
     for y_b, c in [(56, G1), (57, G2), (58, G3), (59, G2), (60, G1)]:
         t = (y_b - 36) / 25.0
         half = int(7 + t * 7)
