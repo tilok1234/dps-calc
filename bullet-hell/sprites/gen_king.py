@@ -348,65 +348,69 @@ draw_scepter()
 # ============================================================
 def draw_skull():
     sx, sy, srx, sry = 32, 23, 11, 10
+    # Fill — bright B3 dominates, B2 only at lower edge for subtle volume
     for y in range(sy - sry - 1, sy + sry + 2):
         for x in range(sx - srx - 1, sx + srx + 2):
             nx = (x - sx) / srx
             ny = (y - sy) / sry
             d = nx * nx + ny * ny
             if d <= 1.0:
-                # Top-lit
-                if ny < -0.5:
+                if ny < 0.55:
                     s(x, y, B3)
-                elif ny < 0.1:
-                    s(x, y, B2)
                 else:
-                    s(x, y, B1)
+                    s(x, y, B2)
             elif d <= 1.18:
                 s(x, y, OL)
 
-    # Eye sockets — large dark hollow with bright cyan core + halo
+    # Brow ridge — dark band that frames the eye sockets
+    hl(23, 30, 18, B1)
+    hl(34, 41, 18, B1)
+    hl(23, 30, 19, OL)
+    hl(34, 41, 19, OL)
+
+    # Eye sockets — bright cyan with pure white pop
     def eye(cx, cy):
-        # Dark socket
-        for y in range(cy - 3, cy + 4):
+        for y in range(cy - 2, cy + 3):
             for x in range(cx - 3, cx + 4):
                 dx = (x - cx) / 3.0
-                dy = (y - cy) / 2.6
+                dy = (y - cy) / 2.4
                 if dx * dx + dy * dy <= 1.0:
                     s(x, y, OL)
-        # Cyan inner glow — chunky 3x2 bright core
         s(cx - 1, cy - 1, C2); s(cx, cy - 1, C3); s(cx + 1, cy - 1, C2)
         s(cx - 1, cy,     C2); s(cx, cy,     C3); s(cx + 1, cy,     C2)
         s(cx - 1, cy + 1, C1); s(cx, cy + 1, C2); s(cx + 1, cy + 1, C1)
-        # Pinprick white centers — readability pop
         s(cx, cy - 1, WHT)
 
     eye(27, 22)
     eye(37, 22)
-    # Cyan halo bleeds onto bone above eye — sells the glow
-    for cx in (27, 37):
-        s(cx, 18, C1); s(cx - 1, 18, C0); s(cx + 1, 18, C0)
-        s(cx, 19, C2); s(cx - 1, 19, C1); s(cx + 1, 19, C1)
 
-    # Brow ridge shadow above eyes
-    hl(24, 30, 19, B1)
-    hl(34, 40, 19, B1)
+    # Cheek hollows — dark gradient under eyes
+    for x in range(24, 30):
+        s(x, 25, B1)
+    for x in range(34, 40):
+        s(x, 25, B1)
+    s(25, 26, B1); s(26, 26, B1)
+    s(38, 26, B1); s(39, 26, B1)
 
-    # Nose hole
-    s(31, 26, OL); s(32, 26, OL)
-    s(30, 27, OL); s(31, 27, OL); s(32, 27, OL); s(33, 27, OL)
-    s(31, 28, OL); s(32, 28, OL)
+    # Nose hole — chunky inverted triangle, dead center
+    s(31, 24, OL); s(32, 24, OL)
+    s(30, 25, OL); s(31, 25, OL); s(32, 25, OL); s(33, 25, OL)
+    s(30, 26, OL); s(31, 26, OL); s(32, 26, OL); s(33, 26, OL)
+    s(31, 27, OL); s(32, 27, OL)
 
-    # Cheekbone shading
-    s(23, 25, B1); s(24, 26, B1); s(25, 27, B1)
-    s(41, 25, B1); s(40, 26, B1); s(39, 27, B1)
+    # Top gum line
+    hl(25, 38, 28, OL)
+    # Five chunky teeth (white) with dark gaps
+    for (a, b) in [(25, 26), (28, 29), (31, 32), (34, 35), (37, 38)]:
+        for x in range(a, b + 1):
+            s(x, 29, B3)
+            s(x, 30, B3)
+    # Bottom of teeth
+    hl(25, 38, 31, OL)
 
-    # Teeth row
-    for x in range(26, 39):
-        s(x, 30, OL)
-    for x in [26, 28, 30, 32, 34, 36, 38]:
-        s(x, 31, OL)
-    # Jaw bottom
-    hl(27, 37, 32, B1)
+    # Jaw bottom — strong shadow to separate skull from collar/torso
+    hl(26, 37, 32, B1)
+    hl(27, 36, 33, OL)
 
 
 draw_skull()
