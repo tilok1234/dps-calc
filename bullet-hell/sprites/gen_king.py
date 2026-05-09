@@ -24,9 +24,12 @@ SH  = (28, 16, 42, 255)     # generic shadow
 WHT = (255, 255, 255, 255)  # pure white sparkle
 
 # Bone (cool tint)
+B0 = (38, 30, 48, 255)       # deepest crevice
 B1 = (74, 66, 80, 255)
+Bm = (124, 114, 120, 255)    # mid shadow
 B2 = (180, 170, 168, 255)
 B3 = (250, 246, 230, 255)
+B4 = (255, 252, 244, 255)    # bright highlight
 
 # Royal purple
 P1 = (32, 8, 56, 255)
@@ -348,34 +351,62 @@ draw_scepter()
 # ============================================================
 def draw_skull():
     sx, sy, srx, sry = 32, 23, 11, 10
-    # Fill — bright B3 dominates, B2 only at lower edge for subtle volume
+
+    # === Multi-tone fill — vertical lighting + edge falloff ===
     for y in range(sy - sry - 1, sy + sry + 2):
         for x in range(sx - srx - 1, sx + srx + 2):
             nx = (x - sx) / srx
             ny = (y - sy) / sry
             d = nx * nx + ny * ny
             if d <= 1.0:
-                if ny < 0.55:
-                    s(x, y, B3)
+                edge = d > 0.78
+                if ny < -0.55:
+                    base = B3 if edge else B4
+                elif ny < 0.0:
+                    base = B2 if edge else B3
+                elif ny < 0.4:
+                    base = B2 if edge else B3
+                elif ny < 0.7:
+                    base = Bm if edge else B2
                 else:
-                    s(x, y, B2)
+                    base = B1 if edge else Bm
+                # Temporal hollows — sides recede
+                if abs(nx) > 0.65 and -0.3 < ny < 0.45:
+                    base = B1
+                s(x, y, base)
             elif d <= 1.18:
                 s(x, y, OL)
 
-    # Brow ridge — dark band that frames the eye sockets
-    hl(23, 30, 18, B1)
-    hl(34, 41, 18, B1)
-    hl(23, 30, 19, OL)
-    hl(34, 41, 19, OL)
+    # === Cranium suture line (skull plates) — subtle vertical ===
+    s(32, 14, Bm); s(32, 16, B1); s(31, 17, Bm)
 
-    # Eye sockets — bright cyan with pure white pop
+    # === Brow ridge — heavy band framing eye sockets ===
+    hl(23, 30, 18, Bm)
+    hl(34, 41, 18, Bm)
+    hl(23, 30, 19, B1)
+    hl(34, 41, 19, B1)
+    # Drop-shadow under brow into upper eye orbit
+    s(24, 20, B1); s(29, 20, B1)
+    s(34, 20, B1); s(40, 20, B1)
+
+    # === Eye sockets — recessed with B0 rim for depth ===
     def eye(cx, cy):
+        # Outer dark rim — gives socket "depth"
+        for y in range(cy - 3, cy + 4):
+            for x in range(cx - 4, cx + 5):
+                dx = (x - cx) / 3.6
+                dy = (y - cy) / 3.0
+                d2 = dx * dx + dy * dy
+                if 0.72 < d2 <= 1.0 and px[x, y] not in (OL,):
+                    s(x, y, B0)
+        # Inner socket black
         for y in range(cy - 2, cy + 3):
             for x in range(cx - 3, cx + 4):
                 dx = (x - cx) / 3.0
                 dy = (y - cy) / 2.4
                 if dx * dx + dy * dy <= 1.0:
                     s(x, y, OL)
+        # Cyan glow with white pinprick
         s(cx - 1, cy - 1, C2); s(cx, cy - 1, C3); s(cx + 1, cy - 1, C2)
         s(cx - 1, cy,     C2); s(cx, cy,     C3); s(cx + 1, cy,     C2)
         s(cx - 1, cy + 1, C1); s(cx, cy + 1, C2); s(cx + 1, cy + 1, C1)
@@ -384,33 +415,54 @@ def draw_skull():
     eye(27, 22)
     eye(37, 22)
 
-    # Cheek hollows — dark gradient under eyes
-    for x in range(24, 30):
-        s(x, 25, B1)
-    for x in range(34, 40):
-        s(x, 25, B1)
-    s(25, 26, B1); s(26, 26, B1)
-    s(38, 26, B1); s(39, 26, B1)
+    # === Cheekbones — bright bumps with shadow hollows below ===
+    s(24, 24, B4); s(25, 24, B3)
+    s(40, 24, B4); s(39, 24, B3)
+    # Hollow under cheekbone
+    for x in range(25, 30):
+        s(x, 26, B1)
+    for x in range(34, 39):
+        s(x, 26, B1)
+    s(26, 27, Bm); s(27, 27, Bm)
+    s(36, 27, Bm); s(37, 27, Bm)
 
-    # Nose hole — chunky inverted triangle, dead center
+    # === Nasal bridge ridge — highlight between eyes down to nose ===
+    s(31, 21, B4); s(32, 21, B4)
+    s(31, 22, B3); s(32, 22, B3)
+    s(31, 23, B3); s(32, 23, B3)
+
+    # === Nose hole — chunky inverted triangle ===
     s(31, 24, OL); s(32, 24, OL)
     s(30, 25, OL); s(31, 25, OL); s(32, 25, OL); s(33, 25, OL)
     s(30, 26, OL); s(31, 26, OL); s(32, 26, OL); s(33, 26, OL)
     s(31, 27, OL); s(32, 27, OL)
+    # Inner nostril shadow
+    s(29, 26, B1); s(34, 26, B1)
 
-    # Top gum line
+    # === Maxilla detail — small shadow above teeth row ===
+    s(28, 27, Bm); s(35, 27, Bm)
+
+    # === Teeth — clean white with chipped + yellowed details ===
     hl(25, 38, 28, OL)
-    # Five chunky teeth (white) with dark gaps
-    for (a, b) in [(25, 26), (28, 29), (31, 32), (34, 35), (37, 38)]:
+    teeth = [(25, 26), (28, 29), (31, 32), (34, 35), (37, 38)]
+    for (a, b) in teeth:
         for x in range(a, b + 1):
             s(x, 29, B3)
             s(x, 30, B3)
-    # Bottom of teeth
+        s(b, 30, B2)  # shadow on right edge of each tooth
+    # Chipped corner on second tooth
+    s(29, 29, OL)
+    # Yellowed/aged tooth (fourth)
+    s(35, 30, G1)
+    s(34, 30, B2)
     hl(25, 38, 31, OL)
 
-    # Jaw bottom — strong shadow to separate skull from collar/torso
-    hl(26, 37, 32, B1)
-    hl(27, 36, 33, OL)
+    # === Jaw bottom shadow ===
+    for x in range(26, 38):
+        nx = (x - sx) / srx
+        ny = (32 - sy) / sry
+        if nx * nx + ny * ny <= 1.0:
+            s(x, 32, B1)
 
 
 draw_skull()
