@@ -520,37 +520,31 @@ def render_back():
 # RIGHT VIEW (boss faces right; we see his right side)
 # ============================================================
 def render_right():
-    # Cape — sweeps back to the LEFT (behind the king as he faces right)
+    # === CAPE — sweeps left behind king ===
     for y in range(28, 62):
         t = (y - 28) / 33.0
-        # Cape extends mostly left; rightmost edge tracks body
-        L = int(28 - t * 24)   # leftmost cape pixel
-        R = int(36 + t * 4)    # rightmost cape edge close to body
+        L = int(28 - t * 24)
+        R = int(34 + t * 4)
         for x in range(L, R + 1):
-            d = (x - L) / max(R - L, 1)  # 0 = far back, 1 = near body
-            if d < 0.15:
-                s(x, y, P1)
-            elif d < 0.5:
-                s(x, y, P2)
-            elif d < 0.85:
-                s(x, y, P3)
-            else:
-                s(x, y, P2)
+            d = (x - L) / max(R - L, 1)
+            if d < 0.12: s(x, y, P1)
+            elif d < 0.45: s(x, y, P2)
+            elif d < 0.85: s(x, y, P3)
+            else: s(x, y, P2)
         s(L - 1, y, OL); s(R + 1, y, OL)
-    hl(28, 36, 27, OL)
-    # Cape gold trim along bottom edge
+    hl(28, 34, 27, OL)
     for y_t, c in [(60, G2), (59, G3), (58, G1)]:
         t = (y_t - 28) / 33.0
-        L = int(28 - t * 24); R = int(36 + t * 4)
+        L = int(28 - t * 24); R = int(34 + t * 4)
         for x in range(L, R + 1):
             s(x, y_t, c)
 
-    # Robe body — vertical cylinder, leans slightly forward (right)
+    # === ROBE BODY — vertical, leans forward (right) ===
     top_y, bot_y = 36, 61
     for y in range(top_y, bot_y + 1):
         t = (y - top_y) / (bot_y - top_y)
-        half = int(6 + t * 5)
-        cx = 34  # offset right (body forward)
+        half = int(7 + t * 5)
+        cx = 35
         L = cx - half; R = cx + half
         for x in range(L, R + 1):
             d = (x - L) / max(R - L, 1)
@@ -558,32 +552,31 @@ def render_right():
             elif d < 0.55: s(x, y, P3)
             else: s(x, y, P4)
         s(L - 1, y, OL); s(R + 1, y, OL)
-    # Gold hem
     for y_b, c in [(57, G2), (58, G3), (59, G2), (60, G1)]:
         t = (y_b - 36) / 25.0
-        half = int(6 + t * 5)
-        for x in range(34 - half, 34 + half + 1):
+        half = int(7 + t * 5)
+        for x in range(35 - half, 35 + half + 1):
             if px[x, y_b] != OL:
                 s(x, y_b, c)
 
-    # Far (left) pauldron — mostly hidden behind body
-    for y in range(34, 42):
+    # === FAR PAULDRON (back-left, mostly hidden) ===
+    for y in range(34, 41):
         for x in range(26, 32):
-            cx, cy = 28, 37
-            rx, ry = 4, 4
+            cx, cy = 29, 37
+            rx, ry = 3, 3
             nx = (x - cx) / rx; ny = (y - cy) / ry
             d = nx * nx + ny * ny
             if d <= 1.0:
                 if d > 0.6: s(x, y, G1)
                 else: s(x, y, G2)
-            elif d <= 1.2:
+            elif d <= 1.3:
                 s(x, y, OL)
 
-    # Near (right) pauldron — prominent in front-right
-    for y in range(32, 44):
-        for x in range(36, 50):
-            cx, cy = 43, 37
-            rx, ry = 6, 6
+    # === NEAR PAULDRON (right shoulder) — dominant ===
+    for y in range(31, 44):
+        for x in range(36, 53):
+            cx, cy = 44, 37
+            rx, ry = 7, 6
             nx = (x - cx) / rx; ny = (y - cy) / ry
             d = nx * nx + ny * ny
             if d <= 1.0:
@@ -593,34 +586,33 @@ def render_right():
                 else: s(x, y, G2)
             elif d <= 1.25:
                 s(x, y, OL)
-    # Mini skull on near pauldron
+    # Mini skull (5x5) on near pauldron
     rows = [" ### ", "#####", "#o#o#", " #v# ", " ### "]
     for j, row in enumerate(rows):
         for i, ch in enumerate(row):
-            x = 43 + i - 2; y = 38 + j - 2
+            x = 44 + i - 2; y = 38 + j - 2
             if ch == '#': s(x, y, B3)
             elif ch in 'ov': s(x, y, OL)
 
-    # Skeletal arm extending forward-right from near shoulder
-    for i, y in enumerate(range(40, 48)):
-        bx = 44 + i // 2
+    # === ARM extending forward holding scepter ===
+    for i, y in enumerate(range(40, 47)):
+        bx = 45 + i // 3
         s(bx - 1, y, OL); s(bx, y, B2); s(bx + 1, y, B3); s(bx + 2, y, OL)
-    # Hand grasping scepter
-    for y in range(46, 50):
-        for x in range(46, 50):
-            if abs(x - 47) + abs(y - 48) <= 2:
+    for y in range(47, 51):
+        for x in range(46, 51):
+            if abs(x - 48) + abs(y - 48) <= 2:
                 s(x, y, B2 if (x + y) % 2 else B3)
     s(45, 47, OL); s(45, 48, OL)
-    s(50, 47, OL); s(50, 48, OL)
-    s(47, 50, OL); s(48, 50, OL)
+    s(51, 47, OL); s(51, 48, OL)
+    s(47, 50, OL); s(48, 50, OL); s(49, 50, OL)
 
-    # Scepter staff (held forward-right, vertical)
-    for y in range(36, 47):
-        s(46, y, OL); s(47, y, G2); s(48, y, G1); s(49, y, OL)
-    s(46, 40, OL); s(47, 40, G3); s(48, 40, G3); s(49, 40, OL)
+    # === SCEPTER STAFF ===
+    for y in range(36, 48):
+        s(47, y, OL); s(48, y, G2); s(49, y, G1); s(50, y, OL)
+    s(47, 41, OL); s(48, 41, G3); s(49, 41, G3); s(50, 41, OL)
 
-    # Skull profile facing right — round cranium with protruding nose at right
-    sx, sy, srx, sry = 31, 23, 9, 10
+    # === SKULL PROFILE — facing right ===
+    sx, sy, srx, sry = 29, 22, 9, 10
     for y in range(sy - sry - 1, sy + sry + 2):
         for x in range(sx - srx - 1, sx + srx + 2):
             nx = (x - sx) / srx
@@ -630,61 +622,77 @@ def render_right():
                 edge = d > 0.78
                 if ny < -0.55:
                     base = B3 if edge else B4
+                elif ny < 0.0:
+                    base = B2 if edge else B3
                 elif ny < 0.4:
                     base = B2 if edge else B3
                 else:
-                    base = B1 if edge else Bm
-                # Back of head (left side) recedes
-                if nx < -0.6: base = B1
+                    base = Bm if edge else B2
+                # Back of head recedes
+                if nx < -0.55:
+                    base = B1
                 s(x, y, base)
             elif d <= 1.18:
                 s(x, y, OL)
 
-    # Nose protrusion (right side of skull)
-    s(40, 23, B4); s(41, 23, B3)
-    s(40, 24, B3); s(41, 24, B2); s(42, 24, B1)
-    s(40, 25, B2); s(41, 25, B1)
-    s(40, 26, B2); s(41, 26, OL)
-    s(40, 25, OL)  # nose hole on side
-    # Chin/jaw curve
-    s(36, 30, B1); s(37, 30, OL); s(38, 30, OL)
-    s(35, 31, B1); s(36, 31, OL)
+    # === BROW RIDGE on profile (above eye) ===
+    hl(31, 38, 18, Bm)
+    hl(31, 38, 19, B1)
 
-    # Single visible eye (right side of face, looking right)
+    # === NOSE — pronounced protrusion to the right ===
+    s(38, 21, B4); s(39, 21, B3)
+    s(38, 22, B3); s(39, 22, B2); s(40, 22, B1)
+    s(38, 23, B3); s(39, 23, Bm); s(40, 23, OL)
+    s(38, 24, B2); s(39, 24, B1); s(40, 24, OL)
+    s(38, 25, Bm); s(39, 25, OL)
+    # Nostril (under nose tip)
+    s(38, 26, OL); s(39, 26, OL)
+    s(37, 26, B1)
+
+    # === EYE — large glowing socket like front view ===
     cx, cy = 35, 22
     for y in range(cy - 2, cy + 3):
-        for x in range(cx - 2, cx + 3):
-            dx = (x - cx) / 2.5
-            dy = (y - cy) / 2.0
+        for x in range(cx - 3, cx + 3):
+            dx = (x - cx) / 2.8
+            dy = (y - cy) / 2.2
             if dx * dx + dy * dy <= 1.0:
                 s(x, y, OL)
-    s(cx - 1, cy, C2); s(cx, cy, C3); s(cx + 1, cy, C2)
+    s(cx - 1, cy - 1, C2); s(cx, cy - 1, C3); s(cx + 1, cy - 1, C2)
+    s(cx - 1, cy,     C2); s(cx, cy,     C3); s(cx + 1, cy,     C2)
+    s(cx - 1, cy + 1, C1); s(cx, cy + 1, C2); s(cx + 1, cy + 1, C1)
     s(cx, cy - 1, WHT)
-    s(cx - 1, cy + 1, C1); s(cx, cy + 1, C2)
 
-    # Brow ridge over visible eye
-    hl(33, 38, 19, B1)
-    hl(32, 37, 18, Bm)
+    # === CHEEKBONE highlight + hollow (defines face shape) ===
+    s(34, 24, B4); s(35, 24, B3)
+    s(33, 25, B1); s(34, 25, Bm)
+    s(36, 25, B1)
 
-    # Teeth row (visible side only, smaller)
-    hl(33, 40, 28, OL)
-    for x in [34, 36, 38]:
-        s(x, 29, B3); s(x + 1, 29, B3)
-    hl(33, 40, 30, OL)
+    # === MOUTH — visible teeth row in profile ===
+    hl(33, 38, 28, OL)
+    s(33, 29, B3); s(34, 29, B3)
+    s(35, 29, OL)  # gap
+    s(36, 29, B3); s(37, 29, B3)
+    s(38, 29, OL)  # gap
+    # Yellowed front tooth
+    s(38, 29, G1)
+    hl(33, 38, 30, OL)
 
-    # Crown (only right half + center spire visible)
+    # === JAW LINE — strong shadow under face ===
+    hl(30, 36, 31, B1)
+    s(31, 32, OL); s(32, 32, OL); s(33, 32, OL)
+
+    # === CROWN — clean side profile, 3 spires only ===
     for y in range(12, 16):
-        for x in range(24, 41):
+        for x in range(22, 41):
             if y == 12: s(x, y, G3)
             elif y == 13: s(x, y, G2)
             elif y == 14: s(x, y, G2)
             else: s(x, y, G1)
-    hl(24, 40, 11, OL); hl(24, 40, 16, OL)
-    vl(23, 12, 15, OL); vl(41, 12, 15, OL)
-    for gx in [27, 32, 37]:
+    hl(22, 40, 11, OL); hl(22, 40, 16, OL)
+    vl(21, 12, 15, OL); vl(41, 12, 15, OL)
+    for gx in [25, 31, 37]:
         s(gx, 13, R2); s(gx, 14, R1)
 
-    # Spires (right half only)
     def spire(cl, cr, top_y, base_y):
         h = base_y - top_y
         bw = cr - cl + 1
@@ -702,12 +710,12 @@ def render_right():
             else:
                 s(L - 1, y, OL); s(L + 1, y, OL)
 
-    spire(28, 33, 2, 11)        # center spire (still visible from side)
-    spire(34, 38, 5, 11)        # right side spire
-    spire(38, 41, 8, 11)        # right outer spire (smaller, partial)
-    spire(25, 27, 6, 11)        # back-left spire (peeks behind)
+    # Three clean spires: back, center (tallest, with gem), front
+    spire(23, 27, 5, 11)        # back spire
+    spire(29, 34, 2, 11)        # center spire (gem)
+    spire(36, 40, 5, 11)        # front spire
 
-    # Big red gem in center spire (slightly off-center for profile)
+    # === BIG RED GEM in center spire ===
     gem = [
         "  ##  ",
         " #rr# ",
@@ -724,20 +732,26 @@ def render_right():
             elif ch == 'r': s(x, y, R2)
             elif ch == 'R': s(x, y, R3)
             elif ch == '*': s(x, y, WHT)
+    s(27, 5, R1); s(34, 5, R1)
+    s(30, 1, R2); s(31, 1, R2)
 
-    # Floating cyan orb in front-right of body (scepter top)
-    cx, cy = 47, 33
-    for y in range(cy - 4, cy + 5):
-        for x in range(cx - 4, cx + 5):
+    # === SCEPTER ORB — large, like front view ===
+    cx, cy = 49, 33
+    for y in range(cy - 5, cy + 6):
+        for x in range(cx - 5, cx + 6):
             dx = x - cx + 0.5; dy = y - cy + 0.5
             d2 = dx * dx + dy * dy
-            if d2 <= 10:
+            if d2 <= 16:
                 if d2 <= 2: s(x, y, WHT)
-                elif d2 <= 5: s(x, y, C3)
-                elif d2 <= 8: s(x, y, C2)
+                elif d2 <= 6: s(x, y, C3)
+                elif d2 <= 12: s(x, y, C2)
                 else: s(x, y, C1)
-            elif d2 <= 16:
+            elif d2 <= 22:
                 s(x, y, OL)
+    # Halo
+    for (hx, hy) in [(cx - 5, cy), (cx + 5, cy), (cx, cy - 5), (cx, cy + 5)]:
+        if 0 <= hx < W and 0 <= hy < H and px[hx, hy] == OL:
+            s(hx, hy, C0)
 
     reinforce_silhouette()
     add_rim_highlights()
