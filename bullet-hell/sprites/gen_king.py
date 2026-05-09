@@ -207,33 +207,59 @@ def mini_skull(cx, cy):
 
 def draw_arm_front(side):
     if side == -1:
-        for y in range(40, 47):
+        # Left arm hangs straight down at side (no longer clasping center)
+        for y in range(40, 50):
             x = 22
             s(x - 1, y, OL); s(x, y, B2); s(x + 1, y, B3); s(x + 2, y, B2); s(x + 3, y, OL)
-        for i, y in enumerate(range(46, 51)):
-            base_x = 22 + i
-            s(base_x - 1, y, OL); s(base_x, y, B2); s(base_x + 1, y, B3); s(base_x + 2, y, B2); s(base_x + 3, y, OL)
-        for y in range(49, 53):
-            for x in range(27, 31):
-                if abs(x - 28) + abs(y - 51) <= 3:
+        # Hand at bottom
+        for y in range(50, 54):
+            for x in range(22, 27):
+                d = abs(x - 24) + abs(y - 52)
+                if d <= 2:
                     s(x, y, B2 if (x + y) % 2 else B3)
-        s(26, 50, OL); s(26, 51, OL); s(26, 52, OL)
-        s(27, 49, OL); s(28, 49, OL); s(31, 50, OL); s(31, 51, OL)
-        s(28, 53, OL); s(29, 53, OL)
+        s(21, 51, OL); s(21, 52, OL)
+        s(27, 51, OL); s(27, 52, OL)
+        s(23, 54, OL); s(24, 54, OL); s(25, 54, OL)
     else:
-        for y in range(40, 47):
-            x = 38
+        # Right arm raised — hand grips scepter base at chest level
+        # Forearm peeks up from inside the pauldron
+        for y in range(40, 44):
+            x = 39
             s(x - 1, y, OL); s(x, y, B2); s(x + 1, y, B3); s(x + 2, y, B2); s(x + 3, y, OL)
-        for i, y in enumerate(range(46, 51)):
-            base_x = 38 - i
-            s(base_x - 1, y, OL); s(base_x, y, B2); s(base_x + 1, y, B3); s(base_x + 2, y, B2); s(base_x + 3, y, OL)
-        for y in range(49, 53):
-            for x in range(33, 37):
-                if abs(x - 35) + abs(y - 51) <= 3:
+        # Hand fist at scepter base (around 42, 38)
+        for y in range(36, 41):
+            for x in range(40, 45):
+                d = abs(x - 42) + abs(y - 38)
+                if d <= 2:
                     s(x, y, B2 if (x + y) % 2 else B3)
-        s(37, 50, OL); s(37, 51, OL); s(37, 52, OL)
-        s(35, 49, OL); s(36, 49, OL); s(32, 50, OL); s(32, 51, OL)
-        s(34, 53, OL); s(35, 53, OL)
+        # Hand outline
+        s(39, 37, OL); s(39, 38, OL); s(39, 39, OL)
+        s(45, 37, OL); s(45, 38, OL); s(45, 39, OL)
+        s(41, 36, OL); s(42, 36, OL); s(43, 36, OL)
+        s(40, 40, OL); s(41, 40, OL); s(43, 40, OL); s(44, 40, OL)
+
+
+def draw_scepter_diagonal_front():
+    """Diagonal staff resting on right pauldron, going up to upper-right corner."""
+    x0, y0 = 42, 38      # base at right hand
+    x1, y1 = 54, 14      # top, just below orb
+    dx_t = x1 - x0
+    dy_t = y0 - y1
+    for y in range(y1, y0 + 1):
+        progress = (y0 - y) / dy_t
+        x = int(round(x0 + progress * dx_t))
+        # Skip pixels inside the hand fist (so the grip remains visible)
+        if 36 <= y <= 40 and 40 <= x <= 44 and abs(x - 42) + abs(y - 38) <= 2:
+            continue
+        s(x, y, G1)
+        s(x + 1, y, G2)
+        s(x - 1, y, OL)
+        s(x + 2, y, OL)
+    # Decorative bands at intervals
+    for y_b in [32, 24, 17]:
+        progress = (y0 - y_b) / dy_t
+        x = int(round(x0 + progress * dx_t))
+        s(x - 1, y_b, OL); s(x, y_b, G3); s(x + 1, y_b, G3); s(x + 2, y_b, OL)
 
 
 def draw_robe_front():
@@ -413,23 +439,25 @@ def draw_crown_front():
 
 
 def draw_scepter_orb():
-    cx, cy = 31, 39
-    for y in range(cy - 5, cy + 6):
-        for x in range(cx - 5, cx + 6):
+    """Orb at top of diagonal scepter, upper-right area."""
+    cx, cy = 55, 11
+    for y in range(cy - 4, cy + 5):
+        for x in range(cx - 4, cx + 5):
             dx = x - cx + 0.5
             dy = y - cy + 0.5
             d2 = dx * dx + dy * dy
-            if d2 <= 16:
+            if d2 <= 12:
                 if d2 <= 2: s(x, y, WHT)
-                elif d2 <= 6: s(x, y, C3)
-                elif d2 <= 12: s(x, y, C2)
+                elif d2 <= 5: s(x, y, C3)
+                elif d2 <= 9: s(x, y, C2)
                 else: s(x, y, C1)
-            elif d2 <= 22:
+            elif d2 <= 16:
                 s(x, y, OL)
-    for (hx, hy) in [(cx - 5, cy), (cx + 5, cy), (cx, cy - 5), (cx, cy + 5),
-                      (cx - 4, cy - 3), (cx + 4, cy - 3),
-                      (cx - 4, cy + 3), (cx + 4, cy + 3)]:
-        if px[hx, hy] == OL:
+    # Halo bleed
+    for (hx, hy) in [(cx - 4, cy), (cx + 4, cy), (cx, cy - 4), (cx, cy + 4),
+                      (cx - 3, cy - 3), (cx + 3, cy - 3),
+                      (cx - 3, cy + 3), (cx + 3, cy + 3)]:
+        if 0 <= hx < W and 0 <= hy < H and px[hx, hy] == OL:
             s(hx, hy, C0)
 
 
@@ -441,7 +469,7 @@ def render_front():
     mini_skull(15, 37); mini_skull(48, 37)
     draw_arm_front(-1); draw_arm_front(+1)
     draw_robe_front()
-    draw_scepter_staff_front()
+    draw_scepter_diagonal_front()
     draw_skull_front()
     draw_crown_front()
     reinforce_silhouette()
@@ -513,7 +541,11 @@ def render_back():
     draw_collar_front()
     draw_pauldron(15, 36, 8, 6)
     draw_pauldron(48, 36, 8, 6)
-    mini_skull(15, 37); mini_skull(48, 37)
+    # No mini-skulls on back of pauldrons — those are on the front face.
+    # Add a small gold rivet/stud cluster instead to suggest pauldron back.
+    for (px_, py_) in [(15, 36), (48, 36)]:
+        s(px_, py_, G1); s(px_ - 2, py_ - 1, G3); s(px_ + 2, py_ - 1, G3)
+        s(px_, py_ - 2, G3); s(px_, py_ + 2, G1)
     # Arms hanging behind/at the sides
     draw_arm_back(-1)
     draw_arm_back(+1)
